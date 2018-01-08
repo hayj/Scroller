@@ -9,6 +9,8 @@ You must install all dependencies in `wm-dist` and specify the data directory wh
 
     pip install ./wm-dist/*.gz
 
+So you just need to download the `wm-dist` dir and the `data` dir to use this tool.
+
 Then you can import it using:
 
     from scroller.scroller import *
