@@ -11,7 +11,7 @@ You must install all dependencies in `wm-dist` and specify the data directory wh
 
 Then you can import it using:
 
-    from webcrawler.scroller.scroller import *
+    from scroller.scroller import *
 
 ## Function `scroll()`
 
