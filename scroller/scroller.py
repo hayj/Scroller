@@ -8,23 +8,23 @@ from webcrawler.browser import *
 import random
 import time
 
-def scroll(driver, stopFunct=None, distance=100000, sequence=100, stopAtBottom=True, scrollerParams={}):
+def scroll(driver, stopFunct=None, distance=1000000, sequence=100, stopAtBottom=True, *args, **kwargs):
     """
         driver param can be webcrawler.browser.Browser or a Selenium driver
         distance is the max distance
         sequence is the number of scroll to send between each stopFunct call
         stopFunct is a function which must return True if you want to stop the scrolling
         this function take the browser (or driver) in parameters
-        stopAtBottom will stop the scroll if coordinates doesn't change between 2 scroll action
+        stopAtBottom will stop the scroll if coordinates doesn't change between 2 scroll action. If you have ajax load, set stopAtBottom as False
     """
     if isinstance(driver, Browser):
         driver = driver.driver
-    scroller = iter(Scroller(**scrollerParams))
+    scroller = iter(Scroller(*args, **kwargs))
     totalDistance = 0
     previousScrollY = -1000
     # While (we don't have stop action or we have one but we don't stop yet) and we didn't walk too much:
     started = False
-    while (not started or stopFunct is None or not stopFunct(driver)) and abs(totalDistance) < distance:
+    while (not started or stopFunct is None or not stopFunct(driver, totalDistance=totalDistance)) and abs(totalDistance) < distance:
         started = True
         for i in range(sequence):
             # We get the scroll current data:
@@ -45,7 +45,7 @@ def scroll(driver, stopFunct=None, distance=100000, sequence=100, stopAtBottom=T
 
 
 class Scroller:
-    def __init__(self, dataDirectory=None, down=True, randomize=True, randomizeMax=0.2, filePattern="scrolldata-*.txt", logger=None, verbose=True):
+    def __init__(self, dataDirectory=None, down=True, randomize=True, randomizeMax=0.2, filePattern=None, logger=None, verbose=True, fast=False):
         """
             By default the function will take a random scroll file
         """
@@ -57,6 +57,11 @@ class Scroller:
         self.randomizeMax = randomizeMax
         # We get all lines:
         self.filePattern = filePattern
+        if self.filePattern is None:
+            self.filePattern = "scrolldata-*"
+            if fast:
+                self.filePattern = self.filePattern + "-fast"
+            self.filePattern = self.filePattern + ".txt"
         self.dataDirectory = dataDirectory
         if self.dataDirectory is None:
             self.dataDirectory = dataDir() + "/Misc/crawling/scrolling"
@@ -119,14 +124,14 @@ def test1():
 
 def test2():
     print("START")
-    b = Browser(driverType=DRIVER_TYPE.chrome, headless=False)
+    b = Browser(driverType=DRIVER_TYPE.chrome, headless=False, useFastError404Detection=True)
     b.html("file://" + execDir(__file__) + "/scroll.html")
     def stopFunct(b):
         print("stopFunct")
-        if getRandomFloat() > 0.95:
-            return True
+#         if getRandomFloat() > 0.95:
+#             return True
         return False
-    scroll(b, stopFunct=stopFunct)
+    scroll(b, stopFunct=stopFunct, fast=False)
     # Other examples:
 #     scroll(b, distance=2000 * 100, stopAtBottom=True, stopFunct=stopFunct, scrollerParams={"dataDirectory": dataDir() + "/Misc/crawling/scrolling"})
     print("END")

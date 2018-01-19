@@ -21,9 +21,9 @@ Usage:
 
     scroll(seleniumDriver, distance=1000)
 
-This function use the class Scroller, you can give class parameters to this class like this:
+This function use the class Scroller, you can use Scroller class args in the scroll function:
 
-    scroll(driver, stopFunct=myStopFunct, scrollerParams={"dataDirectory": "/MY_DATA_DIR"})
+    scroll(driver, stopFunct=myStopFunct, dataDirectory="/MY_DATA_DIR", fast=True)
 
 ## Class `Scroller`
 

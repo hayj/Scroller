@@ -27,13 +27,22 @@ null==d?void 0:d))},attrHooks:{type:{set:function(a,b){if(!o.radioValue&&"radio"
   </div>
 
   <script>
+  
+    function getRandomFloat()
+    {
+        return Math.random()
+    }
 
     allLogs = ""
 
-    for(i = 0 ; i < 10000 ; i++) // 10000
+    for(i = 0 ; i < 30000 ; i++) // 10000
     {
         id = makeid() + makeid() + makeid() + makeid() + makeid()
         $("#text").append(id + "<br/>");
+        if(getRandomFloat() > 0.8)
+        {
+            $("#text").append("-------------------------------------------------------------------------------------------------------------" + "<br/>");
+        }
     }
 
     function makeid() {
@@ -42,7 +51,6 @@ null==d?void 0:d))},attrHooks:{type:{set:function(a,b){if(!o.radioValue&&"radio"
 
         for (var i = 0; i < 5; i++)
             text += possible.charAt(Math.floor(Math.random() * possible.length));
-
         return text;
         }
 
@@ -63,11 +71,12 @@ null==d?void 0:d))},attrHooks:{type:{set:function(a,b){if(!o.radioValue&&"radio"
             allLogs += diffScrollY + " " + diffTimestamp + "<br/>"
             currentScrollY = newScrollY;
             currentTimestamp = newTimestamp;
-
     }, true)
 
-    $("body").keypress(function() {
+    $("body").keypress(function()
+    {
         $("#text").html("");
+        $("#log").html("");
         $("#log").append(allLogs);
     });
 
