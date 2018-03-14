@@ -28,15 +28,15 @@ You can adjust the speed (pixel per seconds):
 You can give a function which say if the scroll have to stop:
 
 	def stopFunct(driver,
-                 totalDistance=None,
-                 minScrollTopReached=None,
-                 maxScrollBottomReached=None):
-       # Here you can test if an element exists:
-       soup = BeautifulSoup(driver.page_source, 'html.parser')
-       element = soup.select_one("#target")
-       if element is not None:
-       		return True # We stop
-       	return False # Else we continue
+	             totalDistance=None,
+	             minScrollTopReached=None,
+	             maxScrollBottomReached=None):
+	   # Here you can test if an element exists:
+	   soup = BeautifulSoup(driver.page_source, 'html.parser')
+	   element = soup.select_one("#target")
+	   if element is not None:
+			return True # We stop
+		return False # Else we continue
 
     smartScroll(seleniumDriver, stopFunct=stopFunct)
 
