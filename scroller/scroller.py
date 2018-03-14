@@ -621,7 +621,9 @@ def helloWorld():
     print("DONE")
 
 if __name__ == "__main__":
-    helloWorld()
+    driver = webdriver.Chrome()
+    driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
+    smartScroll(driver, stopAtBorder=True, humanBreaks=True)
 
 
 

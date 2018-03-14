@@ -1,7 +1,11 @@
 
 # Scroller
 
-This tools can simulate human scrolling using randomize mechanism. The scroll using recorded human scroll is now deprecated.
+This tools can simulate human scrolling using randomize mechanism. It take a Selenium driver and scroll the current page. The scroll using recorded human scroll is now deprecated.
+
+	driver = webdriver.Chrome()
+	driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
+	smartScroll(driver, stopAtBorder=True, distancePerSecond=5000, humanBreaks=True)
 
 ## Install
 
@@ -16,8 +20,6 @@ Then you can import it using:
     from scroller.scroller import smartScroll, getPageInfos, scrollTo
 
 ## Function `smartScroll()`
-
-### All features
 
 You can set a scroll limit to the bottom and say to stop at bottom:
 
@@ -53,17 +55,6 @@ You can set a timeout in second if you don't want to be blocked:
 You can introduce human breaks behavior:
 
 	smartScroll(seleniumDriver, humanBreaks=True)
-
-### Full example
-
-	def helloWorld():
-	    driver = webdriver.Chrome()
-	    driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
-	    smartScroll(driver, stopAtBorder=True, distancePerSecond=5000, humanBreaks=True)
-	    print("DONE")
-
-	if __name__ == "__main__":
-	    helloWorld()
 
 ## Function `getPageInfos()`
 
