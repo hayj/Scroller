@@ -4,10 +4,14 @@ from systemtools.basics import *
 from systemtools.logger import *
 from systemtools.file import *
 from systemtools.location import *
-from webcrawler.browser import *
+try:
+    from webcrawler.browser import *
+except: pass
 import random
 import time
-from datastructuretools.setqueue import *
+try:
+    from datastructuretools.setqueue import *
+except: pass
 
 def getPageInfos(driver):
     getDocHeightFunction = "function getDocHeightForPythonScroller() { var D = document; return Math.max(D.body.scrollHeight, D.documentElement.scrollHeight, D.body.offsetHeight, D.documentElement.offsetHeight, D.body.clientHeight, D.documentElement.clientHeight); };"

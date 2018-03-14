@@ -49,7 +49,7 @@ You can set a timeout in second if you don't want to be blocked:
 	smartScroll(seleniumDriver, timeout=200)
 
 
-## Function `getPageInfos`
+## Function `getPageInfos()`
 
 This function take a driver and return (scrollTop, scrollBottom, windowHeight, documentHeight)
 
