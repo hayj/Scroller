@@ -1,0 +1,68 @@
+<html>
+  <head>
+    <title></title>
+    <meta content="">
+    <style></style>
+    <script src="jquery.min.js"></script>
+    <script src="functions.js"></script>
+  </head>
+  <body>
+        <div id="log"></div>
+
+        <div id="text">
+
+        </div>
+
+        <script>
+
+			//scroll()
+			//function scroll()
+			//{
+			//	window.scrollTo(0, window.scrollY + 50);
+			//	setTimeout(scroll, 0.001 * 1000);
+			//}
+
+
+
+        //var div = document.getElementById('text');
+
+            //div.innerHTML += 'Extra stuff';
+
+            var fakeAjaxActivated = true;
+            var totalAdded = 0;
+            var addMax = 1;
+
+            //$("#text").append(test())
+
+            addLines("text", 200);
+
+
+            $(window).scroll(function()
+            {
+                if(fakeAjaxActivated && totalAdded < addMax)
+                {
+                    if($(window).scrollTop() + getWindowSize()[1] == getDocHeight())
+                    {
+                        fakeAjaxActivated = false;
+//                             addLines("text", 100);
+//                             fakeAjaxActivated = true;
+//                         sleep(1000).then(function ()
+//                         {
+//                             addLines("text", 100);
+//                             fakeAjaxActivated = true;
+//                         });
+
+                        setTimeout(function ()
+                        {
+                            addLines("text", 10000); // 100
+                            fakeAjaxActivated = true;
+                            totalAdded += 1;
+                        }, 1000)
+                    }
+                }
+            });
+
+
+        </script>
+   </body>
+</html>

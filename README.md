@@ -1,7 +1,7 @@
 
 # Scroller
 
-This tools can simulate human scrolling using recorded scroll and randomize mechanism.
+This tools can simulate human scrolling using randomize mechanism. The scoll using recorded human scroll is now deprecated.
 
 ## Install
 
@@ -9,25 +9,50 @@ You must install all dependencies in `wm-dist` and specify the data directory wh
 
     pip install ./wm-dist/*.gz
 
-So you just need to download the `wm-dist` dir and the `data` dir to use this tool.
+So you just need to download the `wm-dist` dir.
 
 Then you can import it using:
 
-    from scroller.scroller import *
+    from scroller.scroller import smartScroll, getPageInfos, scrollTo
 
-## Function `scroll()`
+## Function `smartScroll()`
 
-Usage:
+You can set a scroll limit to the bottom and say to stop at bottom:
 
-    scroll(seleniumDriver, distance=1000)
+    smartScroll(seleniumDriver, distance=100000, stopAtBorder=True)
 
-This function use the class Scroller, you can use Scroller class args in the scroll function:
+You can adjust the speed (pixel per seconds):
 
-    scroll(driver, stopFunct=myStopFunct, dataDirectory="/MY_DATA_DIR", fast=True)
+	smartScroll(seleniumDriver, distancePerSecond=1000)
 
-## Class `Scroller`
+You can give a function which say if the scroll have to stop:
 
-This class generate human scroll data. See parameters for more informations.
+	def stopFunct(driver,
+                 totalDistance=None,
+                 minScrollTopReached=None,
+                 maxScrollBottomReached=None):
+       # Here you can test if an element exists:
+       soup = BeautifulSoup(driver.page_source)
+       element = soup.select_one("#target")
+       if element is not None:
+       		return True # WE STIO
+       	return False
 
-    for current in Scroller():
-        print(current)
+    smartScroll(seleniumDriver, stopFunct=stopFunct)
+
+You can say to scroll down top:
+
+	smartScroll(seleniumDriver, down=False)
+
+You can set a timeout in second if you don't want to be blocked:
+
+	smartScroll(seleniumDriver, timeout=200)
+
+
+## Function `getPageInfos`
+
+This function take a driver and return (scrollTop, scrollBottom, windowHeight, documentHeight)
+
+## Function `scrollTo(driver, element, *args, **kwargs)`
+
+This function scroll to a Selenium element, you can give smartScroll args with *args, **kwargs
