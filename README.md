@@ -1,7 +1,7 @@
 
 # Scroller
 
-This tools can simulate human scrolling using randomize mechanism. The scoll using recorded human scroll is now deprecated.
+This tools can simulate human scrolling using randomize mechanism. The scroll using recorded human scroll is now deprecated.
 
 ## Install
 
