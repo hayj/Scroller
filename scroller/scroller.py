@@ -408,8 +408,10 @@ def smartScroll \
         return
     if distance is not None and distance == 0:
         return
-    if isinstance(driver, Browser):
-        driver = driver.driver
+    try:
+        if isinstance(driver, Browser):
+            driver = driver.driver
+    except: pass
     # Here we init some vars:
     startTime = time.time()
     (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
@@ -487,7 +489,9 @@ def smartScroll \
             maxScrollBottomReached = scrollBottom
         totalDistance = (maxScrollBottomReached - windowHeight) - minScrollTopReached
         # And if we reached the bottom of the page:
-        if down and stopAtBorder and maxScrollBottomReached == documentHeight:
+#         print(maxScrollBottomReached)
+#         print(documentHeight)
+        if down and stopAtBorder and maxScrollBottomReached >= documentHeight:
             return
         # Or if we reach the top:
         elif not down and stopAtBorder and minScrollTopReached == 0:
@@ -603,8 +607,15 @@ def smartScrollTest1():
     )
     b.close()
 
+def helloWorld():
+    driver = webdriver.Chrome()
+    driver.get("https://github.com/hayj/Scroller")
+#     driver.get("https://marmelab.com/blog/2016/12/21/react-isomorphique-en-pratique.html")
+    smartScroll(driver, stopAtBorder=True)
+    print("DONE")
+
 if __name__ == "__main__":
-    testScrollTo2()
+    helloWorld()
 
 
 
