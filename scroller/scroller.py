@@ -614,12 +614,6 @@ def smartScrollTest1():
     )
     b.close()
 
-def helloWorld():
-    driver = webdriver.Chrome()
-    driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
-    smartScroll(driver, stopAtBorder=True, distancePerSecond=5000, humanBreaks=True)
-    print("DONE")
-
 if __name__ == "__main__":
     driver = webdriver.Chrome()
     driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
