@@ -54,7 +54,7 @@ You can introduce human breaks behavior:
 
 	smartScroll(seleniumDriver, humanBreaks=True)
 
-### Complete example
+### Full example
 
 	def helloWorld():
 	    driver = webdriver.Chrome()
