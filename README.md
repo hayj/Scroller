@@ -17,6 +17,8 @@ Then you can import it using:
 
 ## Function `smartScroll()`
 
+### All features
+
 You can set a scroll limit to the bottom and say to stop at bottom:
 
     smartScroll(seleniumDriver, distance=100000, stopAtBorder=True)
@@ -48,6 +50,20 @@ You can set a timeout in second if you don't want to be blocked:
 
 	smartScroll(seleniumDriver, timeout=200)
 
+You can introduce human breaks behavior:
+
+	smartScroll(seleniumDriver, humanBreaks=True)
+
+### Complete example
+
+	def helloWorld():
+	    driver = webdriver.Chrome()
+	    driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
+	    smartScroll(driver, stopAtBorder=True, distancePerSecond=5000, humanBreaks=True)
+	    print("DONE")
+
+	if __name__ == "__main__":
+	    helloWorld()
 
 ## Function `getPageInfos()`
 

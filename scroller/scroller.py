@@ -398,6 +398,8 @@ def smartScroll \
     reverseScrollProb=0.5,
     reverseScrollDistance=None,
     reverseScrollEachTraveledDistance=5000,
+    humanBreaks=False,
+    humanBreaksDuration=0.15,
 ):
     """
         See the README
@@ -434,6 +436,9 @@ def smartScroll \
         maxScrollBottomReached,
         distance,
     ):
+        # We can sleep if we introduce breaks:
+        if humanBreaks:
+            randomSleep(humanBreaksDuration, 6 * humanBreaksDuration)
         # We start and get the previousTimestamp which is the first of the sequence:
         started = True
         previousTimestamp = None
@@ -445,6 +450,8 @@ def smartScroll \
                 randomSleep(sleepMin, sleepMax)
             # First we calculate the distance to walk:
             timeSpent = time.time() - previousTimestamp
+            if timeSpent < 0:
+                timeSpent = 0.0
             previousTimestamp = time.time()
             expectedDistance = distancePerSecond * timeSpent
             expectedDistanceMin = int(expectedDistance - randomGapRatio * expectedDistance)
@@ -609,9 +616,8 @@ def smartScrollTest1():
 
 def helloWorld():
     driver = webdriver.Chrome()
-    driver.get("https://github.com/hayj/Scroller")
-#     driver.get("https://marmelab.com/blog/2016/12/21/react-isomorphique-en-pratique.html")
-    smartScroll(driver, stopAtBorder=True)
+    driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
+    smartScroll(driver, stopAtBorder=True, distancePerSecond=5000, humanBreaks=True)
     print("DONE")
 
 if __name__ == "__main__":
