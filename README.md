@@ -1,7 +1,7 @@
 
 # Scroller
 
-This tools can simulate human scrolling using randomize mechanism. It take a Selenium driver and scroll the current page. The scroll using recorded human scroll is now deprecated.
+This tools can simulate human scrolling using randomize mechanism. It take a Selenium driver and scroll the current page.
 
 	driver = webdriver.Chrome()
 	driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
