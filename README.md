@@ -59,7 +59,7 @@ You can introduce human breaks behavior:
 
 ## Function `getPageInfos()`
 
-This function take a driver and return (scrollTop, scrollBottom, windowHeight, documentHeight)
+This function take a driver and return (scrollTop, scrollBottom, windowHeight, documentHeight). You are at the bottom of the page if `scrollBottom >= documentHeight`.
 
 ## Function `scrollTo(driver, element, *args, **kwargs)`
 
