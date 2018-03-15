@@ -18,7 +18,7 @@ Then you can import it using:
 
     from scroller.scroller import smartScroll, getPageInfos, scrollTo
 
-## Function `smartScroll()`
+## Function `smartScroll(driver, ...)`
 
 You can set a scroll limit to the bottom and say to stop at bottom:
 
@@ -55,7 +55,7 @@ You can introduce human breaks behavior:
 
 	smartScroll(seleniumDriver, humanBreaks=True)
 
-## Function `getPageInfos()`
+## Function `getPageInfos(driver)`
 
 This function take a driver and return (scrollTop, scrollBottom, windowHeight, documentHeight). You are at the bottom of the page if `scrollBottom >= documentHeight`.
 
