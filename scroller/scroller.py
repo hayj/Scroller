@@ -97,7 +97,7 @@ def smartScroll \
     reverseScrollDistance=None,
     reverseScrollEachTraveledDistance=5000,
     humanBreaks=False,
-    humanBreaksDuration=0.15,
+    humanBreaksMinDuration=0.15,
 ):
     """
         See the README
@@ -136,7 +136,7 @@ def smartScroll \
     ):
         # We can sleep if we introduce breaks:
         if humanBreaks:
-            randomSleep(humanBreaksDuration, 6 * humanBreaksDuration)
+            randomSleep(humanBreaksMinDuration, 6 * humanBreaksMinDuration)
         # We start and get the previousTimestamp which is the first of the sequence:
         started = True
         previousTimestamp = None
@@ -313,7 +313,7 @@ def smartScrollTest1():
 if __name__ == "__main__":
     driver = webdriver.Chrome()
     driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
-    smartScroll(driver, stopAtBorder=True, humanBreaks=True)
+    smartScroll(driver, stopAtBorder=True, humanBreaks=True, distancePerSecond=5000)
 
 
 
