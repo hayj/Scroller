@@ -20,49 +20,16 @@ def getPageInfos(driver):
     scrollTop = driver.execute_script("return window.scrollY;")
     scrollBottom = scrollTop + windowHeight
     result = (scrollTop, scrollBottom, windowHeight, documentHeight)
-#     print("--------------------------------------")
-#     print("--------------------------------------")
-#     print(result)
-#     print("--------------------------------------")
-#     print("--------------------------------------")
     return result
 
 def executeScroll(driver, distance):
     driver.execute_script("window.scrollTo(0, window.scrollY + " + str(distance) + ");")
 
-
-# TODO pour téléportation, rester à height - 100, puis descendre un peu et dépasser puis dormir
-# Pour continu, calculer avec le timestmap là ou on est censé etre...
-# TODO implementer expected continus pour human aussi ? pck ça ram
-
-SCROLL_TYPE = Enum("SCROLL_TYPE", "human humanFast continuous teleportation")
-
-def scroll(driver, scrollType=SCROLL_TYPE.continuous, *args, **kwargs):
-    """
-        The only way to scroll on selenium is to send js script
-        But when you load a very long page (for instance you scroll
-        down infinite on Twitter), you have a lot of js usage so the
-        scroll become slow, the script is executed after a long time...
-        Because video and GIF and other things take a lot of js ressources.
-        So the it's better to user continuous scroll because it "jump"
-        to the right distance if it take too much time.
-        But phantomjs is faster than chrome for this task...
-    """
-    print("DEPRECATED")
-    if scrollType == SCROLL_TYPE.human:
-        humanScroll(driver, fast=False, *args, **kwargs)
-    elif scrollType == SCROLL_TYPE.humanFast:
-        humanScroll(driver, fast=True, *args, **kwargs)
-    elif scrollType == SCROLL_TYPE.continuous:
-        continuousScroll(driver, *args, **kwargs)
-    elif scrollType == SCROLL_TYPE.teleportation:
-        raise Exception("NOT YET IMPLEMENTED")
-
 def scrollTo(driver, element, *args, **kwargs):
     """
         This function use continuousScroll to scroll to an element
         The page is centered to the element
-        You can give continuousScroll parameters in *args, **kwargs
+        You can give smartScroll parameters in *args, **kwargs
     """
     y = element.location["y"]
     (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
@@ -110,275 +77,6 @@ def scrollContinueCondition\
         )
         and (distance is None or abs(totalDistance) < abs(distance))
     )
-
-
-
-
-def continuousScroll \
-(
-    driver,
-    stopFunct=None,
-    distance=10000000,
-    sequence=50,
-    stopAtBottom=False,
-    stopAtTop=True,
-    distancePerSecond=5000,
-    sleepMin=0.0001,
-    sleepMax=0.002,
-    randomGapRatio=0.2,
-    down=True,
-    maxDidntScroll=500,
-    logger=None,
-    verbose=True,
-#     allowUpwardScroll=True,
-):
-    """
-        You must give distance > 0 and set down as False if you want to go down top
-    """
-    print("DEPRECATED")
-    log("DEPRECATED", logger=logger, verbose=True)
-    exit()
-    distance = abs(distance)
-    if isinstance(driver, Browser):
-        driver = driver.driver
-    (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
-    scrollTopStart = scrollTop
-    totalDistance = 0
-    started = False
-    weDidntScrollSince = 0
-#     previousScrollTopForUpwardScroll = None
-    while scrollContinueCondition \
-    (
-        started,
-        stopFunct,
-        driver,
-        totalDistance,
-        scrollTop,
-        scrollBottom,
-        distance,
-    ):
-#         if started and allowUpwardScroll and down:
-#             pass
-        started = True
-        previousTimestamp = time.time()
-        for i in range(sequence):
-            timeSpent = time.time() - previousTimestamp
-            previousTimestamp = time.time()
-            expectedDistance = distancePerSecond * timeSpent
-            expectedDistance = getRandomInt(int(expectedDistance - randomGapRatio * expectedDistance),
-                                            int(expectedDistance + randomGapRatio * expectedDistance))
-            (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
-            remainingDistance = distance - abs(scrollTopStart - scrollTop)
-            if remainingDistance < expectedDistance:
-                expectedDistance = remainingDistance
-            if not down:
-                expectedDistance = -expectedDistance
-            if (down and scrollBottom < documentHeight) or (not down and scrollTop > 0):
-                if expectedDistance == 0:
-                    weDidntScrollSince += 1
-                else:
-                    executeScroll(driver, expectedDistance)
-                    totalDistance += abs(expectedDistance)
-                    weDidntScrollSince = 0
-            else:
-                weDidntScrollSince += 1
-            (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
-            # We check if we are on the end of page:
-            if down and stopAtBottom:
-                if scrollBottom == documentHeight:
-                    return
-            if not down and stopAtTop:
-                if scrollTop <= 0:
-                    return
-            if weDidntScrollSince > maxDidntScroll:
-                logError("SCROLL ERROR It's been a long time we didn't scroll...", logger=logger, verbose=verbose)
-                return
-            randomSleep(sleepMin, sleepMax)
-            (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
-
-
-def humanScroll(driver, stopFunct=None, distance=10000000, sequence=100, stopAtBottom=False, *args, **kwargs):
-    """
-        driver param can be webcrawler.browser.Browser or a Selenium driver
-        distance is the max distance
-        sequence is the number of scroll to send between each stopFunct call
-        stopFunct is a function which must return True if you want to stop the scrolling
-        this function take the browser (or driver) in parameters
-        stopAtBottom will stop the scroll if coordinates doesn't change between 2 scroll action. If you have ajax load, set stopAtBottom as False
-    """
-    print("DEPRECATED")
-    if isinstance(driver, Browser):
-        driver = driver.driver
-    scroller = iter(Scroller(*args, **kwargs))
-    (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
-    minScrollTopReached = scrollTop
-    maxScrollBottomReached = scrollBottom
-    totalDistance = 0
-    previousScrollY = -1000
-    # While (we don't have stop action or we have one but we don't stop yet) and we didn't walk too much:
-    started = False
-    durationQueueSize = 150
-    durationQueue = NumberQueue(durationQueueSize)
-    while \
-    (
-        (
-            not started
-            or stopFunct is None
-            or not stopFunct(driver,
-                             totalDistance=totalDistance,
-                             minScrollTopReached=minScrollTopReached,
-                             maxScrollBottomReached=maxScrollBottomReached)
-        )
-        and abs(totalDistance) < distance
-    ):
-        started = True
-        previousTimestamp = None
-        for i in range(sequence):
-            # We get the scroll current data:
-            newScroll = next(scroller)
-            # We first sleep, but we don't sleep too much,
-            # we have to check the previous scrool timestamp:
-            duration = newScroll["duration"]
-            if previousTimestamp is not None:
-                timeSpent = time.time() - previousTimestamp
-                duration -= timeSpent
-                durationQueue.add(duration)
-                meanDuration = durationQueue.mean()
-                # We log something if the human scroll become very slow:
-                if durationQueue.index % durationQueueSize == 0:
-                    if meanDuration < 0:
-                        log("The human scroll become very slow, the delay is " + str(meanDuration) + " seconds!")
-                    else:
-                        log("OKKKKKKKKKKKK")
-                if duration < 0:
-                    duration = 0
-                print(duration)
-            time.sleep(duration)
-            previousTimestamp = time.time()
-            # And then we scroll:
-            executeScroll(driver, newScroll["distance"])
-            # We get new data:
-            (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
-            # We check if we are on the end of page:
-            if stopAtBottom:
-                if scrollBottom == documentHeight:
-                    return
-            # Then we update min and max scrolls:
-            if scrollTop < minScrollTopReached:
-                minScrollTopReached = scrollTop
-            if scrollBottom > maxScrollBottomReached:
-                maxScrollBottomReached = scrollBottom
-            # We inc the counter:
-            totalDistance += newScroll["distance"]
-
-
-class Scroller:
-    def __init__ \
-    (
-        self,
-        dataDirectory=None,
-        down=True,
-        randomize=True,
-        randomizeMax=0.2,
-        filePattern=None,
-        logger=None,
-        verbose=True,
-        fast=False,
-    ):
-        """
-            By default the function will take a random scroll file
-        """
-        print("DEPRECATED")
-        # Store all data:
-        self.logger = logger
-        self.verbose = verbose
-        self.down = down
-        self.randomize = randomize
-        self.randomizeMax = randomizeMax
-        # We get all lines:
-        self.filePattern = filePattern
-        if self.filePattern is None:
-            self.filePattern = "scrolldata-*"
-            if fast:
-                self.filePattern = self.filePattern + "-fast"
-            self.filePattern = self.filePattern + ".txt"
-        self.dataDirectory = dataDirectory
-        if self.dataDirectory is None:
-            self.dataDirectory = dataDir() + "/Misc/crawling/scrolling"
-        try:
-            self.filePath = random.choice(sortedGlob(self.dataDirectory + "/" + self.filePattern))
-        except Exception as e:
-            logException(e, self, location="Scroller __init__")
-            raise Exception("No scrolling data found!")
-
-    def generateData(self):
-        # We parse all lines:
-        fileText = fileToStr(self.filePath)
-        scrollData = []
-        fileText = fileText.strip()
-        fileText = fileText.split("\n")
-        for current in fileText:
-            current = current.split(" ")
-            assert len(current[0]) > 0
-            assert len(current[1]) > 0
-            distance = int(current[0])
-            duration = float(current[1])
-            scrollData.append({"distance": distance, "duration": duration})
-        # We inverse the direction:
-        if not self.down:
-            for current in scrollData:
-                current["distance"] = -current["distance"]
-        # We randomize all values:
-        if self.randomize:
-            for current in scrollData:
-                for key in ["distance", "duration"]:
-                    value = current[key]
-                    variation = self.randomizeMax * abs(value)
-                    variation = getRandomFloat(-variation, variation)
-                    newValue = value + variation
-                    current[key] = newValue
-                # We re-cast the distance to int:
-                current["distance"] = round(current["distance"])
-            # Then we replace each 0 by a random value:
-            for current in scrollData:
-                if current["distance"] == 0:
-                    current["distance"] = 1
-                if current["duration"] == 0.0:
-                    current["duration"] = getRandomFloat(0.01, 0.03)
-        # We convert all duration in seconds:
-        for current in scrollData:
-            current["duration"] /= 1000
-        return scrollData
-
-    def __iter__(self):
-        # We infinitely yield the same data profile:
-        while True:
-            scrollData = self.generateData()
-            for current in scrollData:
-                yield current
-
-def test1():
-    for current in Scroller():
-        printLTS(current)
-        break
-
-
-def test2():
-    print("START")
-    b = Browser(driverType=DRIVER_TYPE.chrome, headless=False, useFastError404Detection=True, ajaxSleep=0.2)
-    b.html("file://" + execDir(__file__) + "/scroll-ajaxtest.html")
-    def stopFunct(b, **kwargs):
-        printLTS(kwargs)
-#         if getRandomFloat() > 0.95:
-#             return True
-        return False
-    scroll(b, stopFunct=stopFunct, fast=True, stopAtBottom=False)
-    # Other examples:
-#     scroll(b, distance=2000 * 100, stopAtBottom=True, stopFunct=stopFunct, scrollerParams={"dataDirectory": dataDir() + "/Misc/crawling/scrolling"})
-    print("END")
-
-
-##############################################################################################################
 
 def smartScroll \
 (
@@ -496,8 +194,6 @@ def smartScroll \
             maxScrollBottomReached = scrollBottom
         totalDistance = (maxScrollBottomReached - windowHeight) - minScrollTopReached
         # And if we reached the bottom of the page:
-#         print(maxScrollBottomReached)
-#         print(documentHeight)
         if down and stopAtBorder and maxScrollBottomReached >= documentHeight:
             return
         # Or if we reach the top:
@@ -619,6 +315,308 @@ if __name__ == "__main__":
     driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
     smartScroll(driver, stopAtBorder=True, humanBreaks=True)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def test2():
+#     print("START")
+#     b = Browser(driverType=DRIVER_TYPE.chrome, headless=False, useFastError404Detection=True, ajaxSleep=0.2)
+#     b.html("file://" + execDir(__file__) + "/scroll-ajaxtest.html")
+#     def stopFunct(b, **kwargs):
+#         printLTS(kwargs)
+# #         if getRandomFloat() > 0.95:
+# #             return True
+#         return False
+#     scroll(b, stopFunct=stopFunct, fast=True, stopAtBottom=False)
+#     # Other examples:
+# #     scroll(b, distance=2000 * 100, stopAtBottom=True, stopFunct=stopFunct, scrollerParams={"dataDirectory": dataDir() + "/Misc/crawling/scrolling"})
+#     print("END")
+
+
+# SCROLL_TYPE = Enum("SCROLL_TYPE", "human humanFast continuous teleportation")
+# def scroll(driver, scrollType=SCROLL_TYPE.continuous, *args, **kwargs):
+#     """
+#         The only way to scroll on selenium is to send js script
+#         But when you load a very long page (for instance you scroll
+#         down infinite on Twitter), you have a lot of js usage so the
+#         scroll become slow, the script is executed after a long time...
+#         Because video and GIF and other things take a lot of js ressources.
+#         So the it's better to user continuous scroll because it "jump"
+#         to the right distance if it take too much time.
+#         But phantomjs is faster than chrome for this task...
+#     """
+#     print("DEPRECATED")
+#     if scrollType == SCROLL_TYPE.human:
+#         humanScroll(driver, fast=False, *args, **kwargs)
+#     elif scrollType == SCROLL_TYPE.humanFast:
+#         humanScroll(driver, fast=True, *args, **kwargs)
+#     elif scrollType == SCROLL_TYPE.continuous:
+#         continuousScroll(driver, *args, **kwargs)
+#     elif scrollType == SCROLL_TYPE.teleportation:
+#         raise Exception("NOT YET IMPLEMENTED")
+
+# def continuousScroll \
+# (
+#     driver,
+#     stopFunct=None,
+#     distance=10000000,
+#     sequence=50,
+#     stopAtBottom=False,
+#     stopAtTop=True,
+#     distancePerSecond=5000,
+#     sleepMin=0.0001,
+#     sleepMax=0.002,
+#     randomGapRatio=0.2,
+#     down=True,
+#     maxDidntScroll=500,
+#     logger=None,
+#     verbose=True,
+# #     allowUpwardScroll=True,
+# ):
+#     """
+#         You must give distance > 0 and set down as False if you want to go down top
+#     """
+#     print("DEPRECATED")
+#     log("DEPRECATED", logger=logger, verbose=True)
+#     exit()
+#     distance = abs(distance)
+#     if isinstance(driver, Browser):
+#         driver = driver.driver
+#     (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
+#     scrollTopStart = scrollTop
+#     totalDistance = 0
+#     started = False
+#     weDidntScrollSince = 0
+# #     previousScrollTopForUpwardScroll = None
+#     while scrollContinueCondition \
+#     (
+#         started,
+#         stopFunct,
+#         driver,
+#         totalDistance,
+#         scrollTop,
+#         scrollBottom,
+#         distance,
+#     ):
+# #         if started and allowUpwardScroll and down:
+# #             pass
+#         started = True
+#         previousTimestamp = time.time()
+#         for i in range(sequence):
+#             timeSpent = time.time() - previousTimestamp
+#             previousTimestamp = time.time()
+#             expectedDistance = distancePerSecond * timeSpent
+#             expectedDistance = getRandomInt(int(expectedDistance - randomGapRatio * expectedDistance),
+#                                             int(expectedDistance + randomGapRatio * expectedDistance))
+#             (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
+#             remainingDistance = distance - abs(scrollTopStart - scrollTop)
+#             if remainingDistance < expectedDistance:
+#                 expectedDistance = remainingDistance
+#             if not down:
+#                 expectedDistance = -expectedDistance
+#             if (down and scrollBottom < documentHeight) or (not down and scrollTop > 0):
+#                 if expectedDistance == 0:
+#                     weDidntScrollSince += 1
+#                 else:
+#                     executeScroll(driver, expectedDistance)
+#                     totalDistance += abs(expectedDistance)
+#                     weDidntScrollSince = 0
+#             else:
+#                 weDidntScrollSince += 1
+#             (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
+#             # We check if we are on the end of page:
+#             if down and stopAtBottom:
+#                 if scrollBottom == documentHeight:
+#                     return
+#             if not down and stopAtTop:
+#                 if scrollTop <= 0:
+#                     return
+#             if weDidntScrollSince > maxDidntScroll:
+#                 logError("SCROLL ERROR It's been a long time we didn't scroll...", logger=logger, verbose=verbose)
+#                 return
+#             randomSleep(sleepMin, sleepMax)
+#             (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
+#
+#
+# def humanScroll(driver, stopFunct=None, distance=10000000, sequence=100, stopAtBottom=False, *args, **kwargs):
+#     """
+#         driver param can be webcrawler.browser.Browser or a Selenium driver
+#         distance is the max distance
+#         sequence is the number of scroll to send between each stopFunct call
+#         stopFunct is a function which must return True if you want to stop the scrolling
+#         this function take the browser (or driver) in parameters
+#         stopAtBottom will stop the scroll if coordinates doesn't change between 2 scroll action. If you have ajax load, set stopAtBottom as False
+#     """
+#     print("DEPRECATED")
+#     if isinstance(driver, Browser):
+#         driver = driver.driver
+#     scroller = iter(Scroller(*args, **kwargs))
+#     (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
+#     minScrollTopReached = scrollTop
+#     maxScrollBottomReached = scrollBottom
+#     totalDistance = 0
+#     previousScrollY = -1000
+#     # While (we don't have stop action or we have one but we don't stop yet) and we didn't walk too much:
+#     started = False
+#     durationQueueSize = 150
+#     durationQueue = NumberQueue(durationQueueSize)
+#     while \
+#     (
+#         (
+#             not started
+#             or stopFunct is None
+#             or not stopFunct(driver,
+#                              totalDistance=totalDistance,
+#                              minScrollTopReached=minScrollTopReached,
+#                              maxScrollBottomReached=maxScrollBottomReached)
+#         )
+#         and abs(totalDistance) < distance
+#     ):
+#         started = True
+#         previousTimestamp = None
+#         for i in range(sequence):
+#             # We get the scroll current data:
+#             newScroll = next(scroller)
+#             # We first sleep, but we don't sleep too much,
+#             # we have to check the previous scrool timestamp:
+#             duration = newScroll["duration"]
+#             if previousTimestamp is not None:
+#                 timeSpent = time.time() - previousTimestamp
+#                 duration -= timeSpent
+#                 durationQueue.add(duration)
+#                 meanDuration = durationQueue.mean()
+#                 # We log something if the human scroll become very slow:
+#                 if durationQueue.index % durationQueueSize == 0:
+#                     if meanDuration < 0:
+#                         log("The human scroll become very slow, the delay is " + str(meanDuration) + " seconds!")
+#                     else:
+#                         log("OKKKKKKKKKKKK")
+#                 if duration < 0:
+#                     duration = 0
+#                 print(duration)
+#             time.sleep(duration)
+#             previousTimestamp = time.time()
+#             # And then we scroll:
+#             executeScroll(driver, newScroll["distance"])
+#             # We get new data:
+#             (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
+#             # We check if we are on the end of page:
+#             if stopAtBottom:
+#                 if scrollBottom == documentHeight:
+#                     return
+#             # Then we update min and max scrolls:
+#             if scrollTop < minScrollTopReached:
+#                 minScrollTopReached = scrollTop
+#             if scrollBottom > maxScrollBottomReached:
+#                 maxScrollBottomReached = scrollBottom
+#             # We inc the counter:
+#             totalDistance += newScroll["distance"]
+#
+#
+# class Scroller:
+#     def __init__ \
+#     (
+#         self,
+#         dataDirectory=None,
+#         down=True,
+#         randomize=True,
+#         randomizeMax=0.2,
+#         filePattern=None,
+#         logger=None,
+#         verbose=True,
+#         fast=False,
+#     ):
+#         """
+#             By default the function will take a random scroll file
+#         """
+#         print("DEPRECATED")
+#         # Store all data:
+#         self.logger = logger
+#         self.verbose = verbose
+#         self.down = down
+#         self.randomize = randomize
+#         self.randomizeMax = randomizeMax
+#         # We get all lines:
+#         self.filePattern = filePattern
+#         if self.filePattern is None:
+#             self.filePattern = "scrolldata-*"
+#             if fast:
+#                 self.filePattern = self.filePattern + "-fast"
+#             self.filePattern = self.filePattern + ".txt"
+#         self.dataDirectory = dataDirectory
+#         if self.dataDirectory is None:
+#             self.dataDirectory = dataDir() + "/Misc/crawling/scrolling"
+#         try:
+#             self.filePath = random.choice(sortedGlob(self.dataDirectory + "/" + self.filePattern))
+#         except Exception as e:
+#             logException(e, self, location="Scroller __init__")
+#             raise Exception("No scrolling data found!")
+#
+#     def generateData(self):
+#         # We parse all lines:
+#         fileText = fileToStr(self.filePath)
+#         scrollData = []
+#         fileText = fileText.strip()
+#         fileText = fileText.split("\n")
+#         for current in fileText:
+#             current = current.split(" ")
+#             assert len(current[0]) > 0
+#             assert len(current[1]) > 0
+#             distance = int(current[0])
+#             duration = float(current[1])
+#             scrollData.append({"distance": distance, "duration": duration})
+#         # We inverse the direction:
+#         if not self.down:
+#             for current in scrollData:
+#                 current["distance"] = -current["distance"]
+#         # We randomize all values:
+#         if self.randomize:
+#             for current in scrollData:
+#                 for key in ["distance", "duration"]:
+#                     value = current[key]
+#                     variation = self.randomizeMax * abs(value)
+#                     variation = getRandomFloat(-variation, variation)
+#                     newValue = value + variation
+#                     current[key] = newValue
+#                 # We re-cast the distance to int:
+#                 current["distance"] = round(current["distance"])
+#             # Then we replace each 0 by a random value:
+#             for current in scrollData:
+#                 if current["distance"] == 0:
+#                     current["distance"] = 1
+#                 if current["duration"] == 0.0:
+#                     current["duration"] = getRandomFloat(0.01, 0.03)
+#         # We convert all duration in seconds:
+#         for current in scrollData:
+#             current["duration"] /= 1000
+#         return scrollData
+#
+#     def __iter__(self):
+#         # We infinitely yield the same data profile:
+#         while True:
+#             scrollData = self.generateData()
+#             for current in scrollData:
+#                 yield current
+#
+# def test1():
+#     for current in Scroller():
+#         printLTS(current)
+#         break
 
 
 
