@@ -9,7 +9,7 @@ This tools can simulate human scrolling using randomize mechanism. It take a Sel
 
 ## Install
 
-You must install all dependencies in `wm-dist` and specify the data directory when you use the class or function
+You must install the scroller dist and its dependencies in `wm-dist`:
 
     pip install ./wm-dist/*.gz
 
