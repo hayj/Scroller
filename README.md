@@ -1,7 +1,7 @@
 
 # Scroller
 
-This tools can simulate human scrolling using randomize mechanism. It take a Selenium driver and scroll the current page.
+This tools can simulate human scrolling using randomize mechanism. It take a Selenium driver and scroll the current page. You can give a stop funct callback which have to return True to terminate the scroll, and other features.
 
 	driver = webdriver.Chrome()
 	driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
