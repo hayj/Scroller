@@ -62,3 +62,7 @@ This function take a driver and return (scrollTop, scrollBottom, windowHeight, d
 ## Function `scrollTo(driver, element, *args, **kwargs)`
 
 This function scroll to a Selenium element, you can give smartScroll args with *args, **kwargs
+
+## Function `moveTo(driver, element)`
+
+This function move the mouse to the element.
