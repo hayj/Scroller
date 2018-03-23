@@ -4,6 +4,7 @@ from systemtools.basics import *
 from systemtools.logger import *
 from systemtools.file import *
 from systemtools.location import *
+from selenium import webdriver
 try:
     from webcrawler.browser import *
 except: pass
@@ -24,6 +25,11 @@ def getPageInfos(driver):
 
 def executeScroll(driver, distance):
     driver.execute_script("window.scrollTo(0, window.scrollY + " + str(distance) + ");")
+
+def moveTo(driver, element):
+    action = webdriver.ActionChains(driver)
+    action.move_to_element(element)
+    action.perform()
 
 def scrollTo(driver, element, *args, **kwargs):
     """
@@ -223,6 +229,11 @@ def smartScroll \
             traveledDistanceSincePreviousReverseScroll = totalDistance
             # We set a certain distance to scroll:
             currentReverseScrollDistance = reverseScrollDistance
+            # To be sure to don't scroll top too much:
+            if currentReverseScrollDistance > 8000:
+                logError("reverseScrollDistance is very high (" + str(reverseScrollDistance) + ")",
+                         logger=logger, verbose=verbose)
+                currentReverseScrollDistance = 8000
             currentReverseScrollDistance = getRandomInt \
             (
                 int(currentReverseScrollDistance - randomGapRatio * currentReverseScrollDistance),
