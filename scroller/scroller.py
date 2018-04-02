@@ -6,7 +6,7 @@ from systemtools.file import *
 from systemtools.location import *
 from selenium import webdriver
 try:
-    from webbrowser.browser import *
+    from hjwebbrowser.browser import *
 except: pass
 import random
 import time

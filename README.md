@@ -11,7 +11,7 @@ This tools can simulate human scrolling using randomize mechanism. It take a Sel
 
 Install the scroller dist and its dependencies in `wm-dist`:
 
-	git clone git@github.com:hayj/Scroller.git
+	git clone https://github.com/hayj/Scroller.git
 	pip install ./Scroller/wm-dist/*.tar.gz
 
 Then you can import it using:
