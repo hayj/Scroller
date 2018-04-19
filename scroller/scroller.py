@@ -104,6 +104,7 @@ def smartScroll \
     reverseScrollEachTraveledDistance=5000,
     humanBreaks=False,
     humanBreaksMinDuration=0.15,
+    stopWhenDocHeightNotChangedSince=None, # seconds
 ):
     """
         See the README
@@ -123,6 +124,8 @@ def smartScroll \
     (scrollTop, scrollBottom, windowHeight, documentHeight) = getPageInfos(driver)
     minScrollTopReached = scrollTop
     maxScrollBottomReached = scrollBottom
+    previousDocumentHeight = documentHeight
+    previousDocumentHeightTimestamp = time.time()
     totalDistance = 0
     started = False
     traveledDistanceSincePreviousReverseScroll = 0
@@ -208,6 +211,20 @@ def smartScroll \
         # If we traveled the desired distance, we can stop:
         if distance is not None and totalDistance >= distance:
             return
+        # If the document didn't changed since n, we stop:
+        if stopWhenDocHeightNotChangedSince is not None and stopWhenDocHeightNotChangedSince > 0.0:
+            # If we already reached the border to reach:
+            if (down and maxScrollBottomReached >= documentHeight) or \
+                (not down and minScrollTopReached == 0):
+                # If the document height changed:
+                if previousDocumentHeight != documentHeight:
+                    previousDocumentHeight = documentHeight
+                    previousDocumentHeightTimestamp = time.time()
+                # Else we stop if it was too long:
+                else:
+                    currentTimestamp = time.time()
+                    if currentTimestamp - previousDocumentHeightTimestamp >= stopWhenDocHeightNotChangedSince:
+                        return
         # Here we check if we took too much time:
         if time.time() - startTime > timeout:
             logError("SCROLL CRITICAL ERROR: The scroll took too much time!", logger=logger, verbose=verbose)
