@@ -57,7 +57,7 @@ You can introduce human breaks behavior:
 
 If you want to automatically stop when the page height not changed since n seconds, use:
 
-		smartScroll(seleniumDriver, stopWhenDocHeightNotChangedSince=10)
+	smartScroll(seleniumDriver, stopWhenDocHeightNotChangedSince=10)
 
 ## Function `getPageInfos(driver)`
 
