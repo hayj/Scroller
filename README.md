@@ -61,11 +61,11 @@ If you want to automatically stop when the page height not changed since n secon
 
 ## Function `getPageInfos(driver)`
 
-This function take a driver and return (scrollTop, scrollBottom, windowHeight, documentHeight). You are at the bottom of the page if `scrollBottom >= documentHeight`.
+This function take a driver and return `(scrollTop, scrollBottom, windowHeight, documentHeight)`. You are at the bottom of the page if `scrollBottom >= documentHeight`.
 
 ## Function `scrollTo(driver, element, *args, **kwargs)`
 
-This function scroll to a Selenium element, you can give smartScroll args with *args, **kwargs
+This function scroll to a Selenium element, you can give smartScroll args with `*args, **kwargs`
 
 ## Function `moveTo(driver, element)`
 
