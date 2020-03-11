@@ -70,6 +70,7 @@ def scrollContinueCondition\
     minScrollTopReached,
     maxScrollBottomReached,
     distance,
+    **kwargs,
 ):
     return \
     (
@@ -79,7 +80,8 @@ def scrollContinueCondition\
             or not stopFunct(driver,
                              totalDistance=totalDistance,
                              minScrollTopReached=minScrollTopReached,
-                             maxScrollBottomReached=maxScrollBottomReached)
+                             maxScrollBottomReached=maxScrollBottomReached,
+                             **kwargs,)
         )
         and (distance is None or abs(totalDistance) < abs(distance))
     )
@@ -88,6 +90,7 @@ def smartScroll \
 (
     driver,
     stopFunct=None,
+    stopFunctKwargs={},
     distance=None,
     sequence=100,
     stopAtBorder=False,
@@ -142,6 +145,7 @@ def smartScroll \
         minScrollTopReached,
         maxScrollBottomReached,
         distance,
+        **stopFunctKwargs,
     ):
         # We can sleep if we introduce breaks:
         if humanBreaks:
