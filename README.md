@@ -1,7 +1,7 @@
 
 # Scroller
 
-This tools can simulate human scrolling using randomize mechanism. It take a Selenium driver and scroll the current page. You can give a stop funct callback which is called at regular intervals and have to return True to terminate the scroll, you can set the speed, set a timeout...
+This tools can simulate human scrolling using randomize mechanism. It takes a Selenium driver and scroll the current page. You can give a stop funct callback which is called at periodic intervals and have to return True to terminate the scroll, you can set the speed, set a timeout and so on.
 
 	driver = webdriver.Chrome()
 	driver.get("https://github.com/hayj/Scroller/blob/master/scroller/scroller.py")
@@ -43,7 +43,7 @@ You can give a function which say if the scroll have to stop:
 
 	smartScroll(seleniumDriver, stopFunct=stopFunct)
 
-You can say to scroll down top:
+You can set the direction of the scroll:
 
 	smartScroll(seleniumDriver, down=False)
 
@@ -51,11 +51,11 @@ You can set a timeout in second if you don't want to be blocked:
 
 	smartScroll(seleniumDriver, timeout=200)
 
-You can introduce human breaks behavior:
+You can introduce human breaks behavior (simulated):
 
 	smartScroll(seleniumDriver, humanBreaks=True)
 
-If you want to automatically stop when the page height not changed since n seconds, use:
+If you want to automatically stop when the page height not changed since n seconds, use `stopWhenDocHeightNotChangedSince`:
 
 	smartScroll(seleniumDriver, stopWhenDocHeightNotChangedSince=10)
 
